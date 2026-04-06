@@ -1225,7 +1225,7 @@ async function callGeminiAPI(message) {
         contents: [
             {
                 role: 'user',
-                parts: [{ text: SYSTEM_PROMPT }]
+                parts: [{ text: buildSystemPrompt() }]
             },
             {
                 role: 'model',
@@ -1352,6 +1352,14 @@ function showTypingIndicator() {
 
 // Event listeners
 sendBtn.addEventListener('click', () => sendMessage(chatInput.value));
+
+// Language Selector
+const languageSelect = document.getElementById('languageSelect');
+if (languageSelect) {
+    languageSelect.addEventListener('change', (e) => {
+        selectedLanguage = e.target.value;
+    });
+}
 
 chatInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {

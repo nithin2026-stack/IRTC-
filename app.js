@@ -494,10 +494,72 @@ function initAnimations() {
     fadeElements.forEach(el => fadeObserver.observe(el));
 }
 
-// ─── Chatbot ──────────────────────────────
-const GEMINI_API_KEY = 'AIzaSyAkqF2euxqyKs6AXQuxBsoCdk24774zATY';
-const GEMINI_MODEL = 'gemini-1.5-flash';
-const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+// ─── Chatbot (Gemini) ─────────────────────
+// Model id: change here if Google returns 404 (e.g. try gemini-1.5-flash).
+const GEMINI_MODEL = 'gemini-2.0-flash';
+const GEMINI_KEY_STORAGE = 'irtc_gemini_api_key';
+
+function getGeminiApiKey() {
+    if (typeof window.GEMINI_API_KEY === 'string' && window.GEMINI_API_KEY.trim()) {
+        return window.GEMINI_API_KEY.trim();
+    }
+    try {
+        const stored = localStorage.getItem(GEMINI_KEY_STORAGE);
+        return stored ? stored.trim() : '';
+    } catch {
+        return '';
+    }
+}
+
+function setStoredGeminiKey(key) {
+    try {
+        if (key && key.trim()) {
+            localStorage.setItem(GEMINI_KEY_STORAGE, key.trim());
+        } else {
+            localStorage.removeItem(GEMINI_KEY_STORAGE);
+        }
+    } catch {
+        /* private mode / blocked storage */
+    }
+}
+
+function geminiApiUrl() {
+    const key = getGeminiApiKey();
+    return `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(key)}`;
+}
+
+function syncApiKeyBannerUi() {
+    const banner = document.getElementById('apiKeyBanner');
+    const statusEl = document.getElementById('apiKeyStatus');
+    const inputEl = document.getElementById('apiKeyInput');
+    if (!banner || !statusEl) return;
+
+    const hasKey = Boolean(getGeminiApiKey());
+    banner.classList.toggle('api-key-banner--ready', hasKey);
+    statusEl.textContent = hasKey
+        ? 'API key is saved on this device. You can chat below.'
+        : '';
+    if (inputEl && hasKey) inputEl.value = '';
+}
+
+function formatGeminiError(err, responseStatus, apiMessage) {
+    const msg = (apiMessage || '').toLowerCase();
+    if (responseStatus === 403 || msg.includes('permission_denied') || msg.includes('api key')) {
+        return [
+            '**Access denied (403):** your API key is probably restricted.',
+            'In Google Cloud Console → Credentials → your key: under *Application restrictions*, add an HTTP referrer that matches this site (for GitHub Pages use `https://YOUR_USERNAME.github.io/*`).',
+            'If you use *Android/iOS* app restrictions only, browser calls will fail.',
+            'Technical detail: ' + (apiMessage || err.message || 'Forbidden')
+        ].join('\n\n');
+    }
+    if (responseStatus === 400 && (msg.includes('location') || msg.includes('country'))) {
+        return '**Region not supported:** Gemini may block requests from your region for this API. Try another network/VPN only if allowed by Google’s terms, or use a small server-side proxy.';
+    }
+    if (responseStatus === 404 || msg.includes('not found')) {
+        return `**Model not found (404):** the model name may have changed. In app.js set GEMINI_MODEL (e.g. \`gemini-1.5-flash\`). Detail: ${apiMessage || err.message}`;
+    }
+    return apiMessage || err.message || 'Request failed. Check the browser console (F12) for details.';
+}
 
 // IRCTC Knowledge Base (embedded for client-side use) — Comprehensive Edition
 const IRCTC_KB = `
@@ -1188,6 +1250,26 @@ const sendBtn = document.getElementById('sendBtn');
 const clearChatBtn = document.getElementById('clearChat');
 const quickActions = document.getElementById('quickActions');
 
+const apiKeyInput = document.getElementById('apiKeyInput');
+const apiKeySave = document.getElementById('apiKeySave');
+if (apiKeySave && apiKeyInput) {
+    apiKeySave.addEventListener('click', () => {
+        const statusEl = document.getElementById('apiKeyStatus');
+        const raw = apiKeyInput.value.trim();
+        if (!raw) {
+            setStoredGeminiKey('');
+            if (statusEl) statusEl.textContent = 'Key cleared. Paste a new key to use the chat.';
+            syncApiKeyBannerUi();
+            return;
+        }
+        setStoredGeminiKey(raw);
+        apiKeyInput.value = '';
+        if (statusEl) statusEl.textContent = 'Saved. You can send a message now.';
+        syncApiKeyBannerUi();
+    });
+}
+syncApiKeyBannerUi();
+
 // Send message
 async function sendMessage(message) {
     if (!message.trim()) return;
@@ -1205,6 +1287,19 @@ async function sendMessage(message) {
     // Show typing indicator
     const typingEl = showTypingIndicator();
 
+    const apiKey = getGeminiApiKey();
+    if (!apiKey) {
+        typingEl.remove();
+        conversationHistory.pop();
+        appendMessage(
+            'No Gemini API key yet. Paste your key in the box above this chat and click **Save key**, then try again.',
+            'bot'
+        );
+        syncApiKeyBannerUi();
+        document.getElementById('apiKeyInput')?.focus();
+        return;
+    }
+
     try {
         const response = await callGeminiAPI(message);
         typingEl.remove();
@@ -1212,11 +1307,10 @@ async function sendMessage(message) {
         conversationHistory.push({ role: 'model', parts: [{ text: response }] });
     } catch (error) {
         typingEl.remove();
+        conversationHistory.pop();
         console.error('API Error:', error);
-        appendMessage(
-            "I apologize, but I'm experiencing a connection issue. Please try again, or contact IRCTC customer care at 14646 for immediate assistance.",
-            'bot'
-        );
+        const detail = formatGeminiError(error, error.status, error.apiMessage);
+        appendMessage(detail, 'bot');
     }
 }
 
@@ -1247,14 +1341,24 @@ async function callGeminiAPI(message) {
         ]
     };
 
-    const response = await fetch(GEMINI_API_URL, {
+    const response = await fetch(geminiApiUrl(), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody)
     });
 
     if (!response.ok) {
-        throw new Error(`API request failed: ${response.status}`);
+        let apiMessage = '';
+        try {
+            const errJson = await response.json();
+            apiMessage = errJson.error?.message || '';
+        } catch {
+            /* ignore */
+        }
+        const err = new Error(`API request failed: ${response.status}`);
+        err.status = response.status;
+        err.apiMessage = apiMessage;
+        throw err;
     }
 
     const data = await response.json();

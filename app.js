@@ -495,8 +495,13 @@ function initAnimations() {
 }
 
 // ─── Chatbot (Gemini) ─────────────────────
-const GEMINI_MODEL = 'gemini-1.5-flash';
-const GEMINI_FALLBACK_MODEL = 'gemini-1.5-pro';
+const GEMINI_MODELS = [
+    'gemini-1.5-flash',
+    'gemini-1.5-flash-latest',
+    'gemini-pro',
+    'gemini-1.5-pro'
+];
+const GEMINI_ENDPOINTS = ['v1', 'v1beta'];
 const GEMINI_KEY_STORAGE = 'irtc_gemini_api_key';
 
 function getGeminiApiKey() {
@@ -523,10 +528,9 @@ function setStoredGeminiKey(key) {
     }
 }
 
-function geminiApiUrl(model = GEMINI_MODEL) {
+function geminiApiUrl(model, version) {
     const key = getGeminiApiKey();
-    // Using v1 stable endpoint for maximum compatibility
-    return `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${encodeURIComponent(key)}`;
+    return `https://generativelanguage.googleapis.com/${version}/models/${model}:generateContent?key=${encodeURIComponent(key)}`;
 }
 
 function syncApiKeyBannerUi() {
@@ -1362,34 +1366,55 @@ async function callGeminiAPI(message) {
         ]
     };
 
-    const response = await fetch(geminiApiUrl(), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody)
-    });
+    let lastError = null;
 
-    if (!response.ok) {
-        let apiMessage = '';
-        try {
-            const errJson = await response.json();
-            apiMessage = errJson.error?.message || '';
-        } catch {
-            /* ignore */
+    // Try each endpoint version
+    for (const version of GEMINI_ENDPOINTS) {
+        // Try each model in the list
+        for (const model of GEMINI_MODELS) {
+            try {
+                const response = await fetch(geminiApiUrl(model, version), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+                        return data.candidates[0].content.parts[0].text;
+                    }
+                } else if (response.status !== 404 && response.status !== 429) {
+                    // If it's a 403 or other non-retryable error, stop trying and show the help
+                    let apiMessage = '';
+                    try {
+                        const errJson = await response.json();
+                        apiMessage = errJson.error?.message || '';
+                    } catch { /* ignore */ }
+                    const err = new Error(`API request failed: ${response.status}`);
+                    err.status = response.status;
+                    err.apiMessage = apiMessage;
+                    throw err;
+                } else {
+                    // 404 or 429: silent fallback to next model/version
+                    const errJson = await response.json().catch(() => ({}));
+                    lastError = { status: response.status, apiMessage: errJson.error?.message || '' };
+                    console.warn(`Model ${model} on ${version} failed with ${response.status}. Trying next...`);
+                }
+            } catch (e) {
+                if (e.status === 403) throw e; // Don't retry on permissions
+                lastError = e;
+            }
         }
-        const err = new Error(`API request failed: ${response.status}`);
-        err.status = response.status;
-        err.apiMessage = apiMessage;
-        throw err;
     }
 
-    const data = await response.json();
-    
-    if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-        return data.candidates[0].content.parts[0].text;
-    }
-    
-    throw new Error('Unexpected API response format');
+    // If we're here, all fallbacks failed
+    const finalErr = new Error(lastError?.apiMessage || 'All Gemini models and versions failed. This usually means the API key is restricted or the region is not supported.');
+    finalErr.status = lastError?.status || 500;
+    finalErr.apiMessage = lastError?.apiMessage || '';
+    throw finalErr;
 }
+
 
 function appendMessage(text, sender) {
     const messageDiv = document.createElement('div');

@@ -19,7 +19,7 @@ const allNavLinks = document.querySelectorAll('.nav-link');
 
 window.addEventListener('scroll', () => {
     navbar.classList.toggle('scrolled', window.scrollY > 50);
-    
+
     // Back to top visibility
     const backToTop = document.getElementById('backToTop');
     backToTop.classList.toggle('visible', window.scrollY > 500);
@@ -64,7 +64,7 @@ function init3DScene() {
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-    
+
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x000000, 0);
@@ -328,7 +328,7 @@ function init3DScene() {
 
     // --- Railway Tracks ---
     const trackGroup = new THREE.Group();
-    
+
     // Rails
     for (let side = -1; side <= 1; side += 2) {
         const rail = new THREE.Mesh(
@@ -365,7 +365,7 @@ function init3DScene() {
     const particlesGeometry = new THREE.BufferGeometry();
     const particleCount = 600;
     const posArray = new Float32Array(particleCount * 3);
-    
+
     for (let i = 0; i < particleCount * 3; i += 3) {
         posArray[i] = (Math.random() - 0.5) * 100;
         posArray[i + 1] = (Math.random() - 0.5) * 50 + 15;
@@ -549,7 +549,7 @@ function syncApiKeyBannerUi() {
 
 function formatGeminiError(err, responseStatus, apiMessage) {
     const msg = (apiMessage || '').toLowerCase();
-    
+
     if (responseStatus === 403 || msg.includes('permission_denied') || msg.includes('api key')) {
         return [
             '### 🔐 Access Denied (403)',
@@ -564,7 +564,7 @@ function formatGeminiError(err, responseStatus, apiMessage) {
             '*Technical detail: ' + (apiMessage || 'Forbidden') + '*'
         ].join('\n\n');
     }
-    
+
     if (responseStatus === 429 || msg.includes('quota') || msg.includes('rate limit')) {
         return [
             '### ⏳ Quota Exceeded (429)',
@@ -580,7 +580,7 @@ function formatGeminiError(err, responseStatus, apiMessage) {
     }
 
     if (responseStatus === 404 || msg.includes('not found')) {
-        return `### 🔎 Model Not Found (404)\nThe model \`${GEMINI_MODEL}\` could not be reached on the stable \`v1\` endpoint. I recommend checking your Google Cloud project to ensure this model is enabled.`;
+        return `### 🔎 Model Not Found (404)\nThe model \`${MODEL}\` could not be reached on the stable \`v1\` endpoint. I recommend checking your Google Cloud project to ensure this model is enabled.`;
     }
 
     return `### 🛑 Request Failed\n${apiMessage || err.message || 'Check your internet connection or API key and try again.'}`;
@@ -1446,10 +1446,10 @@ function appendMessage(text, sender) {
 function formatBotResponse(text) {
     // Convert markdown-like formatting to HTML
     let html = text;
-    
+
     // Bold
     html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    
+
     // Bullet points
     const lines = html.split('\n');
     let result = '';
@@ -1544,13 +1544,13 @@ clearChatBtn.addEventListener('click', () => {
 
 // Smooth scroll for anchor links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
+    anchor.addEventListener('click', function (e) {
         e.preventDefault();
         const targetId = this.getAttribute('href');
         const target = document.querySelector(targetId);
         if (target) {
             target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            
+
             // If the link is for the chatbot, auto-focus the input box
             if (targetId === '#chatbot') {
                 setTimeout(() => {

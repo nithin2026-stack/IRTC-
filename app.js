@@ -496,7 +496,9 @@ function initAnimations() {
 
 // ─── Chatbot (Gemini) ─────────────────────
 const GEMINI_MODELS = [
-    'gemini-1.5-flash'
+    'gemini-2.0-flash',
+    'gemini-1.5-flash',
+    'gemini-1.5-flash-latest'
 ];
 const GEMINI_ENDPOINTS = ['v1', 'v1beta'];
 const GEMINI_KEY_STORAGE = 'irtc_gemini_api_key';
@@ -566,7 +568,7 @@ function formatGeminiError(err, responseStatus, apiMessage) {
         return [
             '### ⏳ Quota Exceeded (429)',
             'You have reached the free-tier limit for this model.',
-            '**Wait 60 seconds** and try again. If it persists, ensure you are using the `gemini-1.5-flash` model in `app.js`.',
+            '**Wait 60 seconds** and try again. If it persists, keep only valid flash models in `app.js` (for example `gemini-2.0-flash` or `gemini-1.5-flash`).',
             '',
             '*Technical detail: ' + (apiMessage || 'Too Many Requests') + '*'
         ].join('\n\n');
@@ -577,7 +579,7 @@ function formatGeminiError(err, responseStatus, apiMessage) {
     }
 
     if (responseStatus === 404 || msg.includes('not found')) {
-        return '### 🔎 Model Not Found (404)\nThe model `gemini-1.5-flash` could not be reached on the stable `v1` endpoint. I recommend checking your Google Cloud project to ensure this model is enabled.';
+        return '### 🔎 Model Not Found (404)\nThe selected Gemini model was not found for this key/project. I automatically try multiple flash models; if this still appears, your API key/project likely has model access limitations.';
     }
 
     return `### 🛑 Request Failed\n${apiMessage || err.message || 'Check your internet connection or API key and try again.'}`;

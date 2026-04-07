@@ -1293,6 +1293,31 @@ Knowledge Base:
 ${IRCTC_KB}`;
 }
 
+function buildEmergencyFallbackReply(message) {
+    const q = (message || '').toLowerCase();
+    if (q.includes('vande bharat')) {
+        return [
+            'Here is a quick guide to **Vande Bharat Express**:',
+            '- **Type:** Semi-high-speed premium daytime train.',
+            '- **Classes:** Chair Car (CC) and Executive Chair Car (EC).',
+            '- **Typical features:** Automatic doors, onboard infotainment, GPS passenger display, bio-vacuum toilets, charging points.',
+            '- **Fare:** Route-dependent and dynamic; check IRCTC for exact current fare.',
+            '- **How to book:** IRCTC app/website -> enter route/date -> choose available Vande Bharat train -> select class -> pay.',
+            'If you share your source and destination, I can suggest the best class and booking tips.'
+        ].join('\n');
+    }
+
+    return [
+        'I can still help with common IRCTC topics right now:',
+        '- Ticket booking and class selection',
+        '- PNR status meaning (CNF/RAC/WL)',
+        '- Cancellation and refund rules',
+        '- Tatkal timings and tips',
+        '',
+        'Please ask your question directly (for example: "How to check PNR status?" or "Tatkal booking time for AC?").'
+    ].join('\n');
+}
+
 let conversationHistory = [];
 
 const chatMessages = document.getElementById('chatMessages');
@@ -1360,6 +1385,12 @@ async function sendMessage(message) {
         typingEl.remove();
         conversationHistory.pop();
         console.error('API Error:', error);
+        if (error?.status === 404) {
+            const fallbackReply = buildEmergencyFallbackReply(message);
+            appendMessage(fallbackReply, 'bot');
+            conversationHistory.push({ role: 'model', parts: [{ text: fallbackReply }] });
+            return;
+        }
         const detail = formatGeminiError(error, error.status, error.apiMessage);
         appendMessage(detail, 'bot');
     }

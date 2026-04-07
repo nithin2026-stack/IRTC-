@@ -502,6 +502,7 @@ const GEMINI_MODELS = [
 ];
 const GEMINI_ENDPOINTS = ['v1', 'v1beta'];
 const GEMINI_KEY_STORAGE = 'irtc_gemini_api_key';
+let cachedResolvedModels = null;
 
 function getGeminiApiKey() {
     if (typeof window.GEMINI_API_KEY === 'string' && window.GEMINI_API_KEY.trim()) {
@@ -530,6 +531,32 @@ function setStoredGeminiKey(key) {
 function geminiApiUrl(model, version) {
     const key = getGeminiApiKey();
     return `https://generativelanguage.googleapis.com/${version}/models/${model}:generateContent?key=${encodeURIComponent(key)}`;
+}
+
+async function resolveAvailableGeminiModels() {
+    if (Array.isArray(cachedResolvedModels) && cachedResolvedModels.length) {
+        return cachedResolvedModels;
+    }
+
+    const key = getGeminiApiKey();
+    if (!key) return GEMINI_MODELS;
+
+    try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(key)}`);
+        if (!response.ok) return GEMINI_MODELS;
+
+        const data = await response.json();
+        const models = (data.models || [])
+            .filter((m) => Array.isArray(m.supportedGenerationMethods) && m.supportedGenerationMethods.includes('generateContent'))
+            .map((m) => (m.name || '').replace(/^models\//, ''))
+            .filter((name) => name && name.includes('gemini') && name.includes('flash'));
+
+        const deduped = [...new Set([...models, ...GEMINI_MODELS])];
+        cachedResolvedModels = deduped.length ? deduped : GEMINI_MODELS;
+        return cachedResolvedModels;
+    } catch {
+        return GEMINI_MODELS;
+    }
 }
 
 function syncApiKeyBannerUi() {
@@ -1367,10 +1394,12 @@ async function callGeminiAPI(message) {
 
     let lastError = null;
 
+    const candidateModels = await resolveAvailableGeminiModels();
+
     // Try each endpoint version
     for (const version of GEMINI_ENDPOINTS) {
         // Try each model in the list
-        for (const model of GEMINI_MODELS) {
+        for (const model of candidateModels) {
             try {
                 const response = await fetch(geminiApiUrl(model, version), {
                     method: 'POST',

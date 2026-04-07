@@ -496,10 +496,7 @@ function initAnimations() {
 
 // ─── Chatbot (Gemini) ─────────────────────
 const GEMINI_MODELS = [
-    'gemini-1.5-flash',
-    'gemini-1.5-flash-latest',
-    'gemini-pro',
-    'gemini-1.5-pro'
+    'gemini-1.5-flash'
 ];
 const GEMINI_ENDPOINTS = ['v1', 'v1beta'];
 const GEMINI_KEY_STORAGE = 'irtc_gemini_api_key';
@@ -580,7 +577,7 @@ function formatGeminiError(err, responseStatus, apiMessage) {
     }
 
     if (responseStatus === 404 || msg.includes('not found')) {
-        return `### 🔎 Model Not Found (404)\nThe model \`${MODEL}\` could not be reached on the stable \`v1\` endpoint. I recommend checking your Google Cloud project to ensure this model is enabled.`;
+        return '### 🔎 Model Not Found (404)\nThe model `gemini-1.5-flash` could not be reached on the stable `v1` endpoint. I recommend checking your Google Cloud project to ensure this model is enabled.';
     }
 
     return `### 🛑 Request Failed\n${apiMessage || err.message || 'Check your internet connection or API key and try again.'}`;

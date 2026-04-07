@@ -1,17 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="IRTC - Intelligent Response Training Chatbot for Indian Railway ticket booking, PNR status, and travel assistance powered by AI.">
+    <meta name="description"
+        content="IRTC - Intelligent Response Training Chatbot for Indian Railway ticket booking, PNR status, and travel assistance powered by AI.">
     <meta name="keywords" content="IRTC, Indian Railway, Chatbot, AI, Train Booking, PNR Status">
     <title>IRTC — Intelligent Response Training Chatbot</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <!-- Preloader -->
     <div id="preloader">
@@ -59,7 +64,7 @@
                 <span class="title-line">Chatbot</span>
             </h1>
             <p class="hero-description">
-                Experience the future of railway assistance. Get instant answers about bookings, 
+                Experience the future of railway assistance. Get instant answers about bookings,
                 PNR status, refunds, and more — powered by advanced AI technology.
             </p>
             <div class="hero-actions">
@@ -101,7 +106,8 @@
             <div class="section-header">
                 <span class="section-tag">What We Offer</span>
                 <h2 class="section-title">Powerful <span class="gradient-text">Features</span></h2>
-                <p class="section-subtitle">Everything you need for a seamless railway experience, right at your fingertips.</p>
+                <p class="section-subtitle">Everything you need for a seamless railway experience, right at your
+                    fingertips.</p>
             </div>
             <div class="features-grid">
                 <div class="feature-card" data-aos="fade-up">
@@ -110,7 +116,8 @@
                         <div class="feature-glow"></div>
                     </div>
                     <h3>Ticket Booking</h3>
-                    <p>Get guided assistance for booking train tickets, checking availability, and choosing the best routes across India.</p>
+                    <p>Get guided assistance for booking train tickets, checking availability, and choosing the best
+                        routes across India.</p>
                 </div>
                 <div class="feature-card" data-aos="fade-up" data-delay="100">
                     <div class="feature-icon-wrapper">
@@ -118,7 +125,8 @@
                         <div class="feature-glow"></div>
                     </div>
                     <h3>PNR Status</h3>
-                    <p>Instantly check your PNR status, booking confirmation, and waitlist position with AI-powered responses.</p>
+                    <p>Instantly check your PNR status, booking confirmation, and waitlist position with AI-powered
+                        responses.</p>
                 </div>
                 <div class="feature-card" data-aos="fade-up" data-delay="200">
                     <div class="feature-icon-wrapper">
@@ -126,7 +134,8 @@
                         <div class="feature-glow"></div>
                     </div>
                     <h3>Refund Queries</h3>
-                    <p>Understand cancellation policies, refund timelines, and get detailed breakdowns of deductions instantly.</p>
+                    <p>Understand cancellation policies, refund timelines, and get detailed breakdowns of deductions
+                        instantly.</p>
                 </div>
                 <div class="feature-card" data-aos="fade-up" data-delay="300">
                     <div class="feature-icon-wrapper">
@@ -134,7 +143,8 @@
                         <div class="feature-glow"></div>
                     </div>
                     <h3>Live Tracking</h3>
-                    <p>Get real-time information about train schedules, platform numbers, delays, and estimated arrival times.</p>
+                    <p>Get real-time information about train schedules, platform numbers, delays, and estimated arrival
+                        times.</p>
                 </div>
                 <div class="feature-card" data-aos="fade-up" data-delay="400">
                     <div class="feature-icon-wrapper">
@@ -142,7 +152,8 @@
                         <div class="feature-glow"></div>
                     </div>
                     <h3>Food & Services</h3>
-                    <p>Order meals onboard, request additional amenities, and access information about available services on your train.</p>
+                    <p>Order meals onboard, request additional amenities, and access information about available
+                        services on your train.</p>
                 </div>
                 <div class="feature-card" data-aos="fade-up" data-delay="500">
                     <div class="feature-icon-wrapper">
@@ -150,7 +161,8 @@
                         <div class="feature-glow"></div>
                     </div>
                     <h3>AI Assistance</h3>
-                    <p>Powered by Google Gemini AI for natural, accurate, and context-aware conversations about all railway queries.</p>
+                    <p>Powered by Google Gemini AI for natural, accurate, and context-aware conversations about all
+                        railway queries.</p>
                 </div>
             </div>
         </div>
@@ -181,7 +193,8 @@
                     <div class="step-number">02</div>
                     <div class="step-content">
                         <h3>AI Processes</h3>
-                        <p>Our Gemini-powered AI analyzes your question against the comprehensive IRCTC knowledge base.</p>
+                        <p>Our Gemini-powered AI analyzes your question against the comprehensive IRCTC knowledge base.
+                        </p>
                     </div>
                     <div class="step-visual">⚡</div>
                 </div>
@@ -256,7 +269,7 @@
                             </button>
                         </div>
                     </div>
-                    
+
                     <!-- Chat Messages -->
                     <div class="chat-messages" id="chatMessages">
                         <div class="message bot-message">
@@ -284,22 +297,38 @@
 
                     <!-- Quick Actions -->
                     <div class="quick-actions" id="quickActions">
-                        <button class="quick-btn" data-query="How do I book a train ticket online?">🎫 Book Ticket</button>
-                        <button class="quick-btn" data-query="How to check PNR status and what do CNF, RAC, WL mean?">🔍 PNR Status</button>
-                        <button class="quick-btn" data-query="What is the detailed cancellation and refund policy with exact charges?">💰 Refund Policy</button>
-                        <button class="quick-btn" data-query="How does Tatkal booking work and what are the charges?">⚡ Tatkal Guide</button>
-                        <button class="quick-btn" data-query="Tell me about Vande Bharat Express — facilities, fare, and routes">🚅 Vande Bharat</button>
-                        <button class="quick-btn" data-query="What concessions are available for senior citizens, students, and Divyangjan?">👴 Concessions</button>
-                        <button class="quick-btn" data-query="What are the different ticket classes and which one should I choose?">🎯 Compare Classes</button>
-                        <button class="quick-btn" data-query="How do I file a complaint or grievance with Indian Railways?">📞 File Complaint</button>
+                        <button class="quick-btn" data-query="How do I book a train ticket online?">🎫 Book
+                            Ticket</button>
+                        <button class="quick-btn" data-query="How to check PNR status and what do CNF, RAC, WL mean?">🔍
+                            PNR Status</button>
+                        <button class="quick-btn"
+                            data-query="What is the detailed cancellation and refund policy with exact charges?">💰
+                            Refund Policy</button>
+                        <button class="quick-btn" data-query="How does Tatkal booking work and what are the charges?">⚡
+                            Tatkal Guide</button>
+                        <button class="quick-btn"
+                            data-query="Tell me about Vande Bharat Express — facilities, fare, and routes">🚅 Vande
+                            Bharat</button>
+                        <button class="quick-btn"
+                            data-query="What concessions are available for senior citizens, students, and Divyangjan?">👴
+                            Concessions</button>
+                        <button class="quick-btn"
+                            data-query="What are the different ticket classes and which one should I choose?">🎯 Compare
+                            Classes</button>
+                        <button class="quick-btn"
+                            data-query="How do I file a complaint or grievance with Indian Railways?">📞 File
+                            Complaint</button>
                     </div>
 
                     <!-- Chat Input -->
                     <div class="chat-input-area">
                         <div class="chat-input-wrapper">
-                            <input type="text" id="chatInput" placeholder="Type in any language — Hindi, Tamil, Telugu, English..." autocomplete="off">
+                            <input type="text" id="chatInput"
+                                placeholder="Type in any language — Hindi, Tamil, Telugu, English..."
+                                autocomplete="off">
                             <button class="send-btn" id="sendBtn" title="Send Message">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <line x1="22" y1="2" x2="11" y2="13"></line>
                                     <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                                 </svg>
@@ -318,7 +347,8 @@
                 <div class="footer-brand">
                     <span class="logo-icon">🚄</span>
                     <span class="logo-text">IRTC</span>
-                    <p class="footer-desc">Intelligent Response Training Chatbot — Making railway travel smarter with AI-powered assistance.</p>
+                    <p class="footer-desc">Intelligent Response Training Chatbot — Making railway travel smarter with
+                        AI-powered assistance.</p>
                 </div>
                 <div class="footer-links-group">
                     <h4>Quick Links</h4>
@@ -347,4 +377,5 @@
 
     <script src="app.js"></script>
 </body>
+
 </html>

@@ -495,7 +495,7 @@ function initAnimations() {
 }
 
 // ─── Chatbot ──────────────────────────────
-const GEMINI_API_KEY = 'AIzaSyDnfITTG-Yn68DIpxgY5A3farVPQ9POg8I';
+const GEMINI_API_KEY = 'AIzaSyAkqF2euxqyKs6AXQuxBsoCdk24774zATY';
 const GEMINI_MODEL = 'gemini-1.5-flash';
 const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 

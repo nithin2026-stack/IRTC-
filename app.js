@@ -496,7 +496,7 @@ function initAnimations() {
 
 // ─── Chatbot (Gemini) ─────────────────────
 // Model id: change here if Google returns 404 (e.g. try gemini-1.5-flash).
-const GEMINI_MODEL = 'gemini-2.0-flash';
+const GEMINI_MODEL = 'gemini-1.5-flash';
 const GEMINI_KEY_STORAGE = 'irtc_gemini_api_key';
 
 function getGeminiApiKey() {

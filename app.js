@@ -525,7 +525,7 @@ function setStoredGeminiKey(key) {
 
 function geminiApiUrl() {
     const key = getGeminiApiKey();
-    return `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(key)}`;
+    return `https://generativelanguage.googleapis.com/v1/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(key)}`;
 }
 
 function syncApiKeyBannerUi() {

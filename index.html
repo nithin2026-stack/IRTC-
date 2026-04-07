@@ -238,10 +238,11 @@
                     </div>
                     <p id="apiKeyStatus" class="api-key-status" aria-live="polite"></p>
                     <p class="api-key-hint">
-                        If the site works locally but not on GitHub Pages: in Google Cloud Console, edit your API key →
-                        Application restrictions → HTTP referrers → add
-                        <code>https://YOUR_USERNAME.github.io/*</code>
-                        (replace with your real GitHub username and repo path if the site is in a project folder).
+                        <strong>If you see a 403 (Access Denied) error on GitHub Pages:</strong><br>
+                        In <a href="https://aistudio.google.com/apikey" target="_blank">Google AI Studio</a>, edit your API key &rarr; 
+                        <strong>Application restrictions</strong> &rarr; 
+                        Set to <strong>None</strong> (easiest) or add an <strong>HTTP referrer</strong> for: 
+                        <code>https://nithin2026-stack.github.io/*</code>
                     </p>
                 </div>
                 <div class="chat-container" id="chatContainer">

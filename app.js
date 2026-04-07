@@ -495,8 +495,8 @@ function initAnimations() {
 }
 
 // ─── Chatbot (Gemini) ─────────────────────
-// Model id: change here if Google returns 404 (e.g. try gemini-1.5-flash).
 const GEMINI_MODEL = 'gemini-1.5-flash';
+const GEMINI_FALLBACK_MODEL = 'gemini-1.5-pro';
 const GEMINI_KEY_STORAGE = 'irtc_gemini_api_key';
 
 function getGeminiApiKey() {
@@ -523,9 +523,10 @@ function setStoredGeminiKey(key) {
     }
 }
 
-function geminiApiUrl() {
+function geminiApiUrl(model = GEMINI_MODEL) {
     const key = getGeminiApiKey();
-    return `https://generativelanguage.googleapis.com/v1/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(key)}`;
+    // Using v1 stable endpoint for maximum compatibility
+    return `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${encodeURIComponent(key)}`;
 }
 
 function syncApiKeyBannerUi() {
@@ -544,21 +545,41 @@ function syncApiKeyBannerUi() {
 
 function formatGeminiError(err, responseStatus, apiMessage) {
     const msg = (apiMessage || '').toLowerCase();
+    
     if (responseStatus === 403 || msg.includes('permission_denied') || msg.includes('api key')) {
         return [
-            '**Access denied (403):** your API key is probably restricted.',
-            'In Google Cloud Console → Credentials → your key: under *Application restrictions*, add an HTTP referrer that matches this site (for GitHub Pages use `https://YOUR_USERNAME.github.io/*`).',
-            'If you use *Android/iOS* app restrictions only, browser calls will fail.',
-            'Technical detail: ' + (apiMessage || err.message || 'Forbidden')
+            '### 🔐 Access Denied (403)',
+            'Your API key is restricted or invalid for this specific domain.',
+            '**How to fix:**',
+            '1. Go to [Google AI Studio](https://aistudio.google.com/apikey).',
+            '2. Find your API key → click **Edit**.',
+            '3. Under **Application restrictions**, select **None** (for testing) or add an **HTTP referrer**:',
+            '   `https://nithin2026-stack.github.io/*`',
+            '4. Save changes and wait 2 minutes before retrying.',
+            '',
+            '*Technical detail: ' + (apiMessage || 'Forbidden') + '*'
         ].join('\n\n');
     }
+    
+    if (responseStatus === 429 || msg.includes('quota') || msg.includes('rate limit')) {
+        return [
+            '### ⏳ Quota Exceeded (429)',
+            'You have reached the free-tier limit for this model.',
+            '**Wait 60 seconds** and try again. If it persists, ensure you are using the `gemini-1.5-flash` model in `app.js`.',
+            '',
+            '*Technical detail: ' + (apiMessage || 'Too Many Requests') + '*'
+        ].join('\n\n');
+    }
+
     if (responseStatus === 400 && (msg.includes('location') || msg.includes('country'))) {
-        return '**Region not supported:** Gemini may block requests from your region for this API. Try another network/VPN only if allowed by Google’s terms, or use a small server-side proxy.';
+        return '### 🌍 Region Not Supported\nGemini API is currently restricted in your region. You may need to use a VPN or a proxy to access this service.';
     }
+
     if (responseStatus === 404 || msg.includes('not found')) {
-        return `**Model not found (404):** the model name may have changed. In app.js set GEMINI_MODEL (e.g. \`gemini-1.5-flash\`). Detail: ${apiMessage || err.message}`;
+        return `### 🔎 Model Not Found (404)\nThe model \`${GEMINI_MODEL}\` could not be reached on the stable \`v1\` endpoint. I recommend checking your Google Cloud project to ensure this model is enabled.`;
     }
-    return apiMessage || err.message || 'Request failed. Check the browser console (F12) for details.';
+
+    return `### 🛑 Request Failed\n${apiMessage || err.message || 'Check your internet connection or API key and try again.'}`;
 }
 
 // IRCTC Knowledge Base (embedded for client-side use) — Comprehensive Edition
